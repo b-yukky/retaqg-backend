@@ -19,5 +19,6 @@ from django.urls import path, include
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("aqg/", include('aqg.urls'), name='aqg'),
+    path('aqg/auth/', include('auth.urls'), name='auth'),
     path("cwdsrc/", include('crowdsource.urls'), name='crowdsource')
 ]

@@ -37,12 +37,17 @@ class QuestionSerializer(serializers.ModelSerializer):
         
 class QuestionDetailSerializer(serializers.ModelSerializer):
     
-    # distractors = DistractorSerializer(many=True, read_only=True)
+    distractors = DistractorMinSerializer(many=True, read_only=True)
     
     class Meta:
         model = Question
         fields = '__all__'
         depth = 1
+        
+    def to_representation(self, instance):
+        question = super().to_representation(instance)
+        question["status"] = instance.get_status_display()
+        return question
         
 class EvaluationSerializer(serializers.ModelSerializer):
     class Meta:

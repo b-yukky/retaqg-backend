@@ -45,14 +45,17 @@ class Question(models.Model):
     model = models.ForeignKey(Model, on_delete=models.SET_NULL, null=True)
     
     def __str__(self) -> str:
-        return self.text
+        return f"{self.id} - {self.text}"
     
 class Evaluation(models.Model):
     
-    relevance = models.IntegerField()
-    acceptability = models.BooleanField()
-    
+    relevance = models.IntegerField(default=0)
+    acceptability = models.BooleanField(default=False)
+    difficulty = models.IntegerField(default=0)
+
     question = models.ForeignKey(Question, on_delete=models.CASCADE, related_name='evaluations')
+    
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, related_name='evaluations')
     
     def __str__(self) -> str:
         return f"{self.question} - {self.id}"
