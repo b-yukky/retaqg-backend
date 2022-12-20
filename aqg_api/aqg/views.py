@@ -11,14 +11,17 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.parsers import JSONParser
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly, AllowAny
-from .ml_models.mcq_generator import MCQGenerator
 from .utils.model_creator import ModelCreator
+from .mcq_selector import MCQSelector
 
 from django.db import transaction
 # Create your views here.
+DEFAULT_MODEL_NAME = Model.objects.get(name='leafQad_base').name
 
-mcq_generator = None
-# mcq_generator = MCQGenerator()
+mcq_selector = MCQSelector({
+    'leafQad_base': True,
+    'sumQd_base': True
+})
 model_creator = ModelCreator()
 
 
@@ -26,7 +29,7 @@ class ModelV2(APIView):
     
     permission_classes = [AllowAny]
     
-    DEFAULT_MODEL_NAME = 'SumQgQaQd_v2_base'
+    
     
     def get(self, request):
         return Response(status=status.HTTP_200_OK)
@@ -40,16 +43,25 @@ class ModelV2(APIView):
         
         if 'model' in request.data:
             try:  
-                model_name = Model.objects.get(model_name=request.data['model']).model_name
+                model_name = Model.objects.get(name=request.data['model']).name
             except Model.DoesNotExist:
-                model_name = self.DEFAULT_MODEL_NAME
+                return Response(status=status.HTTP_404_NOT_FOUND)
         else:
-            model_name = self.DEFAULT_MODEL_NAME
+            model_name = DEFAULT_MODEL_NAME
         
+        if 'count' in request.data:
+            count = request.data['count']
+        else:
+            count = 1
         
         # mcq_generator.select_model(model_name)
         
-        questions, answers, distractors = mcq_generator.generate(text)
+        questions, answers, distractors = mcq_selector.generate_mcq_questions(text, model_name, count)
+        
+        if questions is False or questions == []:
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        
+        print(questions, answers)
         
         with transaction.atomic():
             questions = model_creator.add_mcq_to_db(questions, answers, distractors, text, model_name)
@@ -201,3 +213,15 @@ class EvaluationStatisticsView(APIView):
             'questions_remaining': remaining
         })
         return Response(stats_serializer.data, status=status.HTTP_200_OK)
+
+class ModelView(APIView):
+    
+    permission_classes = [AllowAny]
+    
+    def get(self, *args):
+        try:
+            models = Model.objects.all()
+            models_serializer = ModelSerializer(models, many=True)
+            return Response(models_serializer.data, status=status.HTTP_200_OK)
+        except Exception as error:
+            return Response(status=status.HTTP_404_NOT_FOUND)

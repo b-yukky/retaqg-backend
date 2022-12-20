@@ -6,7 +6,7 @@ from transformers import BartTokenizer, BartForConditionalGeneration
 from transformers import AutoTokenizer, AutoModelForSeq2SeqLM, AutoModelForQuestionAnswering
 
 from transformers import pipeline as transformer_pipeline
-from .distractor_generator import DistractorGenerator
+from .distractors_generation.race_t5small import DistractorGenerator
 
 from ..utils.duplicate_removal import remove_duplicates, remove_distractors_duplicate_with_correct_answer
 from ..utils.text_cleaning import clean_text
@@ -23,24 +23,8 @@ import time
 
 from nltk.translate.bleu_score import sentence_bleu
 
-from transformers import (
-    AdamW,
-    T5ForConditionalGeneration,
-    T5TokenizerFast as T5Tokenizer
-    )
-
-MODEL_NAME = 't5-small'
-TOKENIZER_LEN = 32101
-
-# Model
-class QGModel(pl.LightningModule):
-    def __init__(self):
-        super().__init__()
-        self.model = T5ForConditionalGeneration.from_pretrained(MODEL_NAME, return_dict=True)
-        self.model.resize_token_embeddings(TOKENIZER_LEN) #resizing after adding new tokens to the tokenizer
-
     
-class MCQGenerator():
+class SumBaseMCQGenerator():
     
     def __init__(self, hyperparameters: dict={}):
             self.device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu') 
@@ -64,6 +48,23 @@ class MCQGenerator():
             self.s2v = Sense2Vec().from_disk('weights/s2v_old')
             print('Loaded Distractor generation in', round(time.perf_counter() - start_time, 2), 'seconds.')
             
+            
+    def generate_mcq_questions(self, input_text, desired_count):
+        context = clean_text(input_text)
+        summary = self._summarize(context)
+        
+        answers = self._get_cross_keywords(context, summary, self.hyperparameters['keyword_algorithm'], desired_count)
+        questions = []
+        distractors = []
+        for answer in answers:
+            question = self._get_question(context, answer)
+            score, pred = self._evaluate_question(question, answer, context)
+            questions.append(question)
+            false_answers = remove_duplicates(self.distractor_model.generate(5, answer, question, input_text))
+            false_answers = remove_distractors_duplicate_with_correct_answer(answer, false_answers)
+            distractors.append(false_answers)
+        return questions, answers, distractors
+    
     def _init_hyperparameters(self, hyperparameters):
         if not hyperparameters:
             hyperparameters = {
@@ -73,22 +74,6 @@ class MCQGenerator():
                 'keyword_algorithm': TextRank()
             }
         return hyperparameters
-    
-    def generate(self, input_text):
-        context = clean_text(input_text)
-        summary = self._summarize(context)
-        
-        answers = self._get_cross_keywords(context, summary, self.hyperparameters['keyword_algorithm'])
-        questions = []
-        distractors = []
-        for answer in answers:
-            question = self._get_question(context, answer)
-            score, pred = self._evaluate_question(question, answer, context)
-            questions.append(question)
-            false_answers = remove_duplicates(self.distractor_model.generate(3, answer, question, input_text))
-            false_answers = remove_distractors_duplicate_with_correct_answer(answer, false_answers)
-            distractors.append(false_answers)
-        return questions, answers, distractors
 
     def _summarize(self, input_text):
         tokenized_text = self.summarization_tokenizer.encode(input_text, return_tensors='pt', max_length=1024, truncation=True).to(self.device)
@@ -100,9 +85,12 @@ class MCQGenerator():
         keyword_processor = KeywordProcessor()
         keywords = text_processing.extract_keywords(originaltext, algorithm, n=10)
 
+        print('Keywords extracted:', keywords)
+        print('Summary:', summarytext)
+
         for keyword in keywords:
             keyword_processor.add_keyword(keyword)
-
+        
         keywords_found = keyword_processor.extract_keywords(summarytext)
         keywords_found = list(set(keywords_found))
 
@@ -153,7 +141,7 @@ class MCQGenerator():
             if len(distractors) > 0:
                 print(" Sense2vec_distractors successful for word : ", answer)
                 return distractors,"sense2vec"
-        except:
+        except Exception:
             print (" Sense2vec_distractors failed for word : ",answer)
             
         return distractors, "None"
