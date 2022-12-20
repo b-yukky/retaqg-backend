@@ -186,3 +186,18 @@ class SelectQuestionToEvaluate(APIView):
             return Response(question_serializer.data, status=status.HTTP_200_OK)
         else:
             return Response(status=status.HTTP_204_NO_CONTENT)
+
+class EvaluationStatisticsView(APIView):
+    
+    permission_classes = [IsAuthenticated]
+    
+    def get(self, request):
+        
+        completed = Question.objects.filter(status='EV', evaluations__user__username=request.user).count()
+        remaining = Question.objects.filter(status='EV').exclude(evaluations__user__username=request.user).count()
+        
+        stats_serializer = EvaluationStatsSerializer({
+            'questions_completed': completed,
+            'questions_remaining': remaining
+        })
+        return Response(stats_serializer.data, status=status.HTTP_200_OK)

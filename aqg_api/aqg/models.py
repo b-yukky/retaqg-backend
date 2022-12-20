@@ -52,6 +52,7 @@ class Evaluation(models.Model):
     relevance = models.IntegerField(default=0)
     acceptability = models.BooleanField(default=False)
     difficulty = models.IntegerField(default=0)
+    choices = models.IntegerField(default=0)
 
     question = models.ForeignKey(Question, on_delete=models.CASCADE, related_name='evaluations')
     

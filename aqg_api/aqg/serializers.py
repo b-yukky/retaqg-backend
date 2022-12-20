@@ -59,3 +59,9 @@ class ProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = Profile
         fields = '__all__'
+
+class EvaluationStatsSerializer(serializers.Serializer):
+    
+    questions_completed = serializers.IntegerField()
+    questions_remaining = serializers.IntegerField()
+    
