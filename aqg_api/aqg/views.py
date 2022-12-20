@@ -144,8 +144,9 @@ class EvaluationView(APIView):
         else:
             return Response(evaluation_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def put(self, request, evaluation_id=None, *args):
+    def put(self, request, *args):
         try:
+            evaluation_id = request.data['id']
             evaluation = Evaluation.objects.get(id=evaluation_id)
         except Evaluation.DoesNotExist:
             evaluation = None
@@ -184,4 +185,4 @@ class SelectQuestionToEvaluate(APIView):
             question_serializer = QuestionDetailSerializer(queryset_question.first())
             return Response(question_serializer.data, status=status.HTTP_200_OK)
         else:
-            return Response(status=status.HTTP_404_NOT_FOUND)
+            return Response(status=status.HTTP_204_NO_CONTENT)
