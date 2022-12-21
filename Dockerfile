@@ -14,6 +14,7 @@ RUN pip install -r requirements.txt
 RUN pip install git+https://github.com/boudinfl/pke.git
 RUN pip install gunicorn
 RUN python -m spacy download en_core_web_sm
-RUN python download_models.py
 
 COPY ./aqg_api /code
+
+RUN python download_models.py
