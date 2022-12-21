@@ -103,11 +103,11 @@ WSGI_APPLICATION = "aqg_api.wsgi.application"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.mysql",
-        "HOST": os.environ.get("DATABASE_DEV_NAME"),
+        "HOST": os.environ.get("DATABASE_DEV_HOST"),
         "PORT": os.environ.get("DATABASE_DEV_PORT", default=ssh_tunnel.local_bind_port),
         "NAME": os.environ.get("DATABASE_DEV_NAME"),
-        "USER": os.environ.get("DATABASE_DEV_NAME"),
-        "PASSWORD": os.environ.get("DATABASE_DEV_NAME"),
+        "USER": os.environ.get("DATABASE_DEV_USERNAME"),
+        "PASSWORD": os.environ.get("DATABASE_DEV_PASSWORD"),
     }
 }
 

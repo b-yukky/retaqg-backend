@@ -16,14 +16,15 @@ from .mcq_selector import MCQSelector
 
 from django.db import transaction
 # Create your views here.
+DEV_DEBUG = False
 DEFAULT_MODEL_NAME = Model.objects.get(name='leafQad_base').name
 
 mcq_selector = MCQSelector({
-    'leafQad_base': True,
-    'sumQd_base': True
+    'leafQad_base': True if not DEV_DEBUG else False,
+    'sumQd_base': True if not DEV_DEBUG else False
 })
-model_creator = ModelCreator()
 
+model_creator = ModelCreator()
 
 class ModelV2(APIView):
     
