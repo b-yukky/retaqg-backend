@@ -101,27 +101,19 @@ WSGI_APPLICATION = "aqg_api.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.mysql",
-        "HOST": os.environ.get("DATABASE_DEV_HOST"),
-        "PORT": os.environ.get("DATABASE_DEV_PORT", default=ssh_tunnel.local_bind_port),
-        "NAME": os.environ.get("DATABASE_DEV_NAME"),
-        "USER": os.environ.get("DATABASE_DEV_USERNAME"),
-        "PASSWORD": os.environ.get("DATABASE_DEV_PASSWORD"),
-    }
-}
 
 CORS_ORIGIN_ALLOW_ALL = True
 
 if PRODUCTION:
-    DATABASES['default'] = {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': os.environ.get("DATABASE_PROD_NAME"),
-        'HOST': os.environ.get("DATABASE_PROD_HOST"),
-        'PORT': os.environ.get("DATABASE_PROD_PORT"),
-        'USER': os.environ.get("DATABASE_PROD_USERNAME"),
-        'PASSWORD': os.environ.get("DATABASE_PROD_PASSWORD")
+    DATABASES = {
+        "default": {
+            'ENGINE': 'django.db.backends.mysql',
+            'NAME': os.environ.get("DATABASE_PROD_NAME"),
+            'HOST': os.environ.get("DATABASE_PROD_HOST"),
+            'PORT': os.environ.get("DATABASE_PROD_PORT"),
+            'USER': os.environ.get("DATABASE_PROD_USERNAME"),
+            'PASSWORD': os.environ.get("DATABASE_PROD_PASSWORD")  
+        }
     }
     
     CSRF_COOKIE_SECURE = True
@@ -133,7 +125,17 @@ if PRODUCTION:
     # SECURE_SSL_REDIRECT = True
     
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'http')
-
+else:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.mysql",
+            "HOST": os.environ.get("DATABASE_DEV_HOST"),
+            "PORT": os.environ.get("DATABASE_DEV_PORT", default=ssh_tunnel.local_bind_port),
+            "NAME": os.environ.get("DATABASE_DEV_NAME"),
+            "USER": os.environ.get("DATABASE_DEV_USERNAME"),
+            "PASSWORD": os.environ.get("DATABASE_DEV_PASSWORD"),
+        }
+    }
 
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': (
