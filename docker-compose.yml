@@ -41,7 +41,7 @@ services:
       - dbnet
   django:
     build: ./retaqg-backend
-    command: bash -c "python manage.py collectstatic --no-input && yes | python manage.py makemigrations --merge && python manage.py migrate && gunicorn aqg_api.wsgi:application --bind 0.0.0.0:443 --log-level=debug"
+    command: bash -c "python manage.py collectstatic --no-input && yes | python manage.py makemigrations --merge && python manage.py migrate && gunicorn aqg_api.wsgi:application --bind 0.0.0.0:80 --log-level=debug"
     container_name: django
     env_file:
       - ./retaqg-backend/aqg_api/aqg_api/.env
@@ -50,7 +50,7 @@ services:
       - ./nginx/certs:/etc/certs
       - /static:/code/static
     expose:
-      - "443"
+      - "80"
     links:
       - mysql
     depends_on:
