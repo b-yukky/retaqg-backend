@@ -5,7 +5,7 @@ def init_models(models: dict, deactivate:bool=False):
     for model_name in models.keys():
         try:
             Model.objects.get(name=model_name).name
-        except Model.DoesNotExist():
+        except Model.DoesNotExist:
             Model.objects.create(name=model_name)
             
     default_model = Model.objects.get(name=list(models.keys())[0]).name
