@@ -13,9 +13,11 @@ def main():
         os.mkdir(weights_folder)
     
     for model_name, dlink in weights.items():
-        print(f'downloading {model_name} weights...')
-        os.system(f'wget -nc "{dlink}" -P {os.path.join(weights_folder, model_name)}')
-        print(f'download complete.')
+        save_path = os.path.join(weights_folder, model_name)
+        if not os.path.exists(save_path):
+            print(f'downloading {model_name} weights...')
+            os.system(f'wget -nc "{dlink}" -P {save_path}')
+            print(f'download complete.')
 
 if __name__ == "__main__":
     main()
