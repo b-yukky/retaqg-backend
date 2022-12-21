@@ -25,6 +25,8 @@ class Model(models.Model):
     
     name = models.CharField(max_length=40, unique=True)
     
+    active = models.BooleanField(default=True)
+    
     creation_date = models.DateTimeField(auto_created=True)
     last_updated = models.DateTimeField(auto_now=True)
     
@@ -53,6 +55,7 @@ class Evaluation(models.Model):
     acceptability = models.BooleanField(default=False)
     difficulty = models.IntegerField(default=0)
     choices = models.IntegerField(default=0)
+    familiarity = models.IntegerField(default=0)
 
     question = models.ForeignKey(Question, on_delete=models.CASCADE, related_name='evaluations')
     

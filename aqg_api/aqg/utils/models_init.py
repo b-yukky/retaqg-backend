@@ -2,11 +2,13 @@ from ..models import Model
 
 def init_models(models: dict, deactivate:bool=False):
     
-    for model_name in models.keys():
+    for model_name, activated in models.items():
         try:
-            Model.objects.get(name=model_name).name
+            model = Model.objects.get(name=model_name)
+            model.active = activated
+            model.save()
         except Model.DoesNotExist:
-            Model.objects.create(name=model_name)
+            Model.objects.create(name=model_name, active=activated)
             
     default_model = Model.objects.get(name=list(models.keys())[0]).name
     
