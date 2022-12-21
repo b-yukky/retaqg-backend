@@ -3,6 +3,7 @@ FROM python:3.9.15
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONBUFFERED 1
 
+
 RUN mkdir /code
 
 COPY download_models.py /code
