@@ -17,8 +17,6 @@ from sense2vec import Sense2Vec
 from pke.unsupervised import *
 from flashtext import KeywordProcessor
 
-import nltk
-import pytorch_lightning as pl
 import time
 
 from nltk.translate.bleu_score import sentence_bleu

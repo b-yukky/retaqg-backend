@@ -1,16 +1,7 @@
-from logging import NullHandler
-from typing import List, Dict, Tuple
-import tqdm.notebook as tq
-from tqdm.notebook import tqdm
-import pandas as pd
-import numpy as np
 
-import torch
-from pathlib import Path
-from torch.utils.data import Dataset, DataLoader
+from typing import List, Dict, Tuple
+
 import pytorch_lightning as pl
-from pytorch_lightning.callbacks import ModelCheckpoint
-from sklearn.model_selection import train_test_split
 from transformers import (
     AdamW,
     T5ForConditionalGeneration,
