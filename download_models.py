@@ -18,6 +18,8 @@ def main():
             print(f'downloading {model_name} weights...')
             os.system(f'wget -nc "{dlink}" -P {save_path}')
             print(f'download complete.')
+        else:
+            print(f'{model_name} already downloaded.')
 
 if __name__ == "__main__":
     main()
