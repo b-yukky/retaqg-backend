@@ -59,10 +59,11 @@ class SumBaseMCQGenerator():
         for answer in answers:
             question = self._get_question(context, answer)
             score, pred = self._evaluate_question(question, answer, context)
-            questions.append(question)
-            false_answers = remove_duplicates(self.distractor_model.generate(5, answer, question, input_text))
-            false_answers = remove_distractors_duplicate_with_correct_answer(answer, false_answers)
-            distractors.append(false_answers)
+            if score > 0.5:
+                questions.append(question) 
+                false_answers = remove_duplicates(self.distractor_model.generate(5, answer, question, input_text))
+                false_answers = remove_distractors_duplicate_with_correct_answer(answer, false_answers)
+                distractors.append(false_answers)
         return questions, answers, distractors
     
     def _init_hyperparameters(self, hyperparameters):
@@ -120,15 +121,17 @@ class SumBaseMCQGenerator():
         qa_input = {'question': question, 'context':  context}
         res = self.qa_pipeline(qa_input)
         pred = res['answer'].replace('\n', '').lower().split(' ')
+        print(f"pred {pred}: answer {answer}")
         score = sentence_bleu([answer.lower().split(' ')], pred, weights=[1])
+        print('score', score)
         return score, " ".join(pred)
     
-    def _remove_questions(self, context, questions, answers, qa_pipeline):
+    def _remove_questions(self, context, questions, answers, qa_pipeline, threshold=0.5):
         keep_questions = []
         keep_answers = []
         for q, a in zip(questions, answers):
             score, _ = self.evaluate_question(q, a, context, qa_pipeline)
-            if score > 0:
+            if score > threshold:
                 keep_questions.append(q)
                 keep_answers.append(a)
         
