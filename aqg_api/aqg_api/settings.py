@@ -122,6 +122,8 @@ if PRODUCTION:
     
     FORCE_SCRIPT_NAME = '/qu/aqg/api/'
     
+    
+    
     # SECURE_BROWSER_XSS_FILTER = True
     # SECURE_SSL_REDIRECT = True
     
@@ -191,11 +193,11 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
 
-STATIC_URL = '/static/'
+STATIC_URL = '/static/' if not PRODUCTION else '/qu/aqg/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-MEDIA_URL = '/media/'
+MEDIA_URL = '/media/' if not PRODUCTION else '/qu/aqg/static/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
