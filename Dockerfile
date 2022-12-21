@@ -5,8 +5,6 @@ ENV PYTHONBUFFERED 1
 
 RUN mkdir /code
 
-RUN python ./download_models.py
-
 COPY ./aqg_api/requirements.txt /code
 
 WORKDIR /code
