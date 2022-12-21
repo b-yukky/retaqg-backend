@@ -119,7 +119,7 @@ if PRODUCTION:
         'ENGINE': 'django.db.backends.mysql',
         'NAME': os.environ.get("DATABASE_PROD_NAME"),
         'HOST': os.environ.get("DATABASE_PROD_HOST"),
-        'PORT': os.environ.get("DATABASE_PROD_PORT", default=ssh_tunnel.local_bind_port),
+        'PORT': os.environ.get("DATABASE_PROD_PORT"),
         'USER': os.environ.get("DATABASE_PROD_USERNAME"),
         'PASSWORD': os.environ.get("DATABASE_PROD_PASSWORD")
     }
