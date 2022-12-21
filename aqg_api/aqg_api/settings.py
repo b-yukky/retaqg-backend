@@ -197,7 +197,7 @@ STATIC_URL = '/static/' if not PRODUCTION else '/qu/aqg/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-MEDIA_URL = '/media/' if not PRODUCTION else '/qu/aqg/static/'
+MEDIA_URL = '/media/' if not PRODUCTION else '/qu/aqg/media/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
