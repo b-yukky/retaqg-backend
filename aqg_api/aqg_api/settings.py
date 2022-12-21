@@ -116,7 +116,7 @@ if PRODUCTION:
     }
     
     CSRF_COOKIE_SECURE = True
-    CSRF_TRUSTED_ORIGINS = ['https://la.ait.kyushu-u.ac.jp/', 'https://la.ait.kyushu-u.ac.jp/qu/aqg/']
+    CSRF_TRUSTED_ORIGINS = ['https://la.ait.kyushu-u.ac.jp', 'https://la.ait.kyushu-u.ac.jp/', 'https://la.ait.kyushu-u.ac.jp/qu/aqg/']
     SESSION_COOKIE_SECURE = True
     SESSION_COOKIE_SAMESITE = 'None'
     
