@@ -119,7 +119,7 @@ if PRODUCTION:
     SESSION_COOKIE_SECURE = True
     SESSION_COOKIE_SAMESITE = 'None'
     
-    FORCE_SCRIPT_NAME = '/qu/aqg/'
+    FORCE_SCRIPT_NAME = '/qu/aqg/api/'
     
     # SECURE_BROWSER_XSS_FILTER = True
     # SECURE_SSL_REDIRECT = True
