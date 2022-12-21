@@ -18,15 +18,15 @@ from django.db import transaction
 from .utils.models_init import init_models
 
 # Create your views here.
-DEV_DEBUG = False
+DEV_DEBUG = True
 
-ML_MODELS, DEFAULT_MODEL_NAME = init_models({
-    'leafQad_base': True,
-    'sumQd_base': True
-}, DEV_DEBUG)
+# ML_MODELS, DEFAULT_MODEL_NAME = init_models({
+#     'leafQad_base': True,
+#     'sumQd_base': True
+# }, DEV_DEBUG)
 
-mcq_selector = MCQSelector(ML_MODELS)
-model_creator = ModelCreator()
+# mcq_selector = MCQSelector(ML_MODELS)
+# model_creator = ModelCreator()
 
 class ModelV2(APIView):
     
