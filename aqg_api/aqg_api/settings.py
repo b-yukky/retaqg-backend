@@ -49,7 +49,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 ALLOWED_HOSTS = ['*']
 
-
+FORCE_SCRIPT_NAME = '/qu/aqg'
 # Application definition
 
 INSTALLED_APPS = [
