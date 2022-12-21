@@ -19,23 +19,6 @@ from datetime import timedelta
 dotenv_path = os.path.join(os.path.dirname(__file__), '.env')
 load_dotenv()
 
-SERVER_IP = '133.5.19.111'
-PATH_TO_SSH_PRIVATE_KEY = "C:\\Users\\LIMU\\.ssh\\id_ed25519"
-SSH_USERNAME = 'ladev'
-LOCAL_DB_PORT_ON_THE_SERVER = 3306
-
-ssh_tunnel = SSHTunnelForwarder(
-    SERVER_IP,
-    ssh_private_key=PATH_TO_SSH_PRIVATE_KEY,
-    ssh_username=SSH_USERNAME,
-    remote_bind_address=('192.168.100.65', LOCAL_DB_PORT_ON_THE_SERVER),
-)
-ssh_tunnel.start()
-
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent.parent
-
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
 
@@ -44,8 +27,26 @@ SECRET_KEY = "django-insecure-2o(5!9+na6d(+n#$lwi&n_r@@#384m01$v_cr6*@q833gp^4$9
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = int(os.environ.get("DJANGO_DEBUG", default=0))
-
 PRODUCTION = int(os.environ.get("PRODUCTION", default=0))
+
+SERVER_IP = '133.5.19.111'
+PATH_TO_SSH_PRIVATE_KEY = "C:\\Users\\LIMU\\.ssh\\id_ed25519"
+SSH_USERNAME = 'ladev'
+LOCAL_DB_PORT_ON_THE_SERVER = 3306
+
+if not PRODUCTION:
+    ssh_tunnel = SSHTunnelForwarder(
+        SERVER_IP,
+        ssh_private_key=PATH_TO_SSH_PRIVATE_KEY,
+        ssh_username=SSH_USERNAME,
+        remote_bind_address=('192.168.100.65', LOCAL_DB_PORT_ON_THE_SERVER),
+    )
+    ssh_tunnel.start()
+
+# Build paths inside the project like this: BASE_DIR / 'subdir'.
+BASE_DIR = Path(__file__).resolve().parent.parent
+
+
 ALLOWED_HOSTS = ['*']
 
 
@@ -124,7 +125,7 @@ if PRODUCTION:
     }
     
     CSRF_COOKIE_SECURE = True
-    CSRF_TRUSTED_ORIGINS = ['*.domain.fr']
+    CSRF_TRUSTED_ORIGINS = ['*']
     SESSION_COOKIE_SECURE = True
     SESSION_COOKIE_SAMESITE = 'None'
     
