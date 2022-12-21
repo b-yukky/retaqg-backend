@@ -17,6 +17,8 @@ services:
       - ./src/:/var/www/qu/aqg/
     networks:
       - dbnet
+    depends_on:
+      - django
   # MySQL Service
   mysql:
     image: mysql:8
