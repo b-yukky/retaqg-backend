@@ -5,7 +5,8 @@ ENV PYTHONBUFFERED 1
 
 RUN mkdir /code
 
-COPY download_models.py /code
+RUN python download_models.py
+
 COPY ./aqg_api/requirements.txt /code
 
 WORKDIR /code
@@ -17,4 +18,3 @@ RUN python -m spacy download en_core_web_sm
 
 COPY ./aqg_api /code
 
-RUN python download_models.py
