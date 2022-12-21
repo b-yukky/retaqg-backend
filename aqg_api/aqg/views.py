@@ -15,15 +15,17 @@ from .utils.model_creator import ModelCreator
 from .mcq_selector import MCQSelector
 
 from django.db import transaction
+from .utils.models_init import init_models
+
 # Create your views here.
 DEV_DEBUG = False
-DEFAULT_MODEL_NAME = Model.objects.get(name='leafQad_base').name
 
-mcq_selector = MCQSelector({
-    'leafQad_base': True if not DEV_DEBUG else False,
-    'sumQd_base': True if not DEV_DEBUG else False
-})
+ML_MODELS, DEFAULT_MODEL_NAME = init_models({
+    'leafQad_base': True,
+    'sumQd_base': True
+}, DEV_DEBUG)
 
+mcq_selector = MCQSelector(ML_MODELS)
 model_creator = ModelCreator()
 
 class ModelV2(APIView):
