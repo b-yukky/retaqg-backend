@@ -16,6 +16,7 @@ from dotenv import load_dotenv
 import os
 from datetime import timedelta
 
+dotenv_path = os.path.join(os.path.dirname(__file__), '.env')
 load_dotenv()
 
 SERVER_IP = '133.5.19.111'
@@ -42,7 +43,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = "django-insecure-2o(5!9+na6d(+n#$lwi&n_r@@#384m01$v_cr6*@q833gp^4$9"
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = int(os.environ.get("DJANGO_DEBUG", default=0))
 
 PRODUCTION = int(os.environ.get("PRODUCTION", default=0))
 ALLOWED_HOSTS = ['*']
@@ -102,17 +103,25 @@ WSGI_APPLICATION = "aqg_api.wsgi.application"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.mysql",
-        "HOST": "localhost",
-        "PORT": ssh_tunnel.local_bind_port,
-        "NAME": "RT_AQG",
-        "USER": "bryan",
-        "PASSWORD": "limu828!"
+        "HOST": os.environ.get("DATABASE_DEV_NAME"),
+        "PORT": os.environ.get("DATABASE_DEV_PORT", default=ssh_tunnel.local_bind_port),
+        "NAME": os.environ.get("DATABASE_DEV_NAME"),
+        "USER": os.environ.get("DATABASE_DEV_NAME"),
+        "PASSWORD": os.environ.get("DATABASE_DEV_NAME"),
     }
 }
 
 CORS_ORIGIN_ALLOW_ALL = True
 
 if PRODUCTION:
+    DATABASES['default'] = {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': os.environ.get("DATABASE_PROD_NAME"),
+        'HOST': os.environ.get("DATABASE_PROD_HOST"),
+        'PORT': os.environ.get("DATABASE_PROD_PORT", default=ssh_tunnel.local_bind_port),
+        'USER': os.environ.get("DATABASE_PROD_USERNAME"),
+        'PASSWORD': os.environ.get("DATABASE_PROD_PASSWORD")
+    }
     
     CSRF_COOKIE_SECURE = True
     CSRF_TRUSTED_ORIGINS = ['*.domain.fr']
