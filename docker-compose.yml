@@ -48,11 +48,11 @@ services:
     env_file:
       - ./retaqg-backend/aqg_api/aqg_api/.env
     volumes:
-      - ./code:/src
+      - ./weights:/code/weights
       - ./nginx/certs:/etc/certs
       - /static:/code/static
     expose:
-      - "80"
+      - "443"
     links:
       - mysql
     depends_on:

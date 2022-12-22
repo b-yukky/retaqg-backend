@@ -22,7 +22,7 @@ DEV_DEBUG = True
 
 ML_MODELS, DEFAULT_MODEL_NAME = init_models({
     'leafQad_base': True,
-    'sumQd_base': True
+    'sumQd_base': False
 }, DEV_DEBUG)
 
 mcq_selector = MCQSelector(ML_MODELS)
@@ -228,3 +228,31 @@ class ModelView(APIView):
             return Response(models_serializer.data, status=status.HTTP_200_OK)
         except Exception as error:
             return Response(status=status.HTTP_404_NOT_FOUND)
+
+class ProfileView(APIView):
+    
+    permission_classes = [IsAuthenticated]
+    
+    def get(self, request, *args):
+        try:
+            profile = Profile.objects.get(user__username=request.user)
+            profile_serializer = ProfileSerializer(profile)
+            return Response(profile_serializer.data, status=status.HTTP_200_OK)
+        except Profile.DoesNotExist:
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        except Exception:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+    def put(self, request, *args):
+        try:
+            profile = Profile.objects.get(user__username=request.user)
+        except Profile.DoesNotExist:
+            profile = Profile.objects.create(
+                user=User.objects.get(username=request.user)
+            )
+        profile_serializer = ProfileSerializer(profile, data=request.data)
+        if profile_serializer.is_valid():
+            profile_serializer.save()
+            return Response(profile_serializer.data, status=status.HTTP_200_OK)
+        else:
+            return Response(profile_serializer.errors, status=status.HTTP_400_BAD_REQUEST)

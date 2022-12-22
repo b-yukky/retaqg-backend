@@ -80,4 +80,8 @@ class Profile(models.Model):
     english_validation = models.BooleanField(default=False)
     english_false_answers = models.IntegerField(default=0)
     english_proficiency = models.IntegerField(default=0)
+    english_selfestimation = models.IntegerField(default=0)
     is_student = models.BooleanField(default=False)
+    
+    def __str__(self) -> str:
+        return f"profile - {self.user}"
