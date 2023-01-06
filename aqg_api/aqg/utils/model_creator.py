@@ -7,7 +7,7 @@ class ModelCreator():
         ''' Empty initialization'''
         pass
     
-    def add_mcq_to_db(self, questions: list, answers: list, distractors_list:list, context: str, model_name: str):
+    def add_mcq_to_db(self, questions: list, answers: list, distractors_list:list, context: str, model_name: str, topic: str):
         
         results = []
         
@@ -21,7 +21,8 @@ class ModelCreator():
         except Paragraph.DoesNotExist:
             paragraph = Paragraph(
                 text=context,
-                length=len(context)        
+                length=len(context),
+                topic=topic        
             )
             paragraph.save()
         
