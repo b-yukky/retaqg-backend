@@ -9,6 +9,7 @@ https://docs.djangoproject.com/en/4.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.1/ref/settings/
 """
+from telnetlib import AUTHENTICATION
 from sshtunnel import SSHTunnelForwarder
 
 from pathlib import Path
@@ -62,7 +63,7 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
     "corsheaders",
     "aqg.apps.AqgConfig",
-    "crowdsource.apps.CrowdsourceConfig"
+    "userauth.apps.UserauthConfig",
 ]
 
 MIDDLEWARE = [
@@ -140,6 +141,13 @@ else:
         }
     }
 
+AUTHENTICATION_BACKENDS = {
+    'userauth.authentication.EmailBackend',
+    'userauth.authentication.AuthenticationWithoutPassword',
+    'django.contrib.auth.backends.ModelBackend',
+}
+
+
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.DjangoModelPermissions',
@@ -176,6 +184,8 @@ AUTH_PASSWORD_VALIDATORS = [
         "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
     },
 ]
+
+AUTH_USER_MODEL = 'userauth.User'
 
 
 # Internationalization

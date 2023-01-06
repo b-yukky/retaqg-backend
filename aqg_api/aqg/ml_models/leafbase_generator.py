@@ -18,7 +18,7 @@ class Question:
         self.distractors = distractors
 
 class LeafBaseMCQGenerator():
-    def __init__(self, is_verbose=False):
+    def __init__(self, is_verbose=True):
         start_time = time.perf_counter()
         print('Loading ML Models...')
 

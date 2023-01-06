@@ -1,5 +1,5 @@
 from django.db import models
-from django.contrib.auth.models import User
+from userauth.models import User
 
 # Create your models here.
 STATUS = [
@@ -27,7 +27,7 @@ class Model(models.Model):
     
     active = models.BooleanField(default=True)
     
-    creation_date = models.DateTimeField(auto_created=True)
+    creation_date = models.DateTimeField(auto_created=True, null=True)
     last_updated = models.DateTimeField(auto_now=True)
     
     comment = models.TextField(blank=True, null=True)

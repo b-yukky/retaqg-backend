@@ -4,7 +4,7 @@ from django.http import Http404, response
 from django.http import HttpResponse
 from .models import * 
 from .serializers  import *
-from django.contrib.auth.models import User
+from userauth.models import User
 import json
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -52,10 +52,9 @@ class ModelV2(APIView):
         else:
             model_name = DEFAULT_MODEL_NAME
         
-        if 'count' in request.data:
-            count = request.data['count']
-        else:
-            count = 1
+
+        count = request.data['count'] if 'count' in request.data else 1
+        topic = request.data['topic'] if 'topic' in request.data else ''
         
         # mcq_generator.select_model(model_name)
         
@@ -67,7 +66,7 @@ class ModelV2(APIView):
         print(questions, answers)
         
         with transaction.atomic():
-            questions = model_creator.add_mcq_to_db(questions, answers, distractors, text, model_name)
+            questions = model_creator.add_mcq_to_db(questions, answers, distractors, text, model_name, topic)
         
         questions_serializer = QuestionDetailSerializer(questions, many=True)
 

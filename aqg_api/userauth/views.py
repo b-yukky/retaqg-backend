@@ -2,9 +2,12 @@ from django.shortcuts import render
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from django.contrib.auth.models import User  
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
+from rest_framework import status
+from aqg.serializers  import UserSerializer
+
+from userauth.models import User
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
     def validate(self, attrs):
@@ -28,7 +31,9 @@ class TokenObtainPairWithoutPasswordSerializer(TokenObtainPairSerializer):
 
     def validate(self, attrs):
         attrs.update({'password': ''})
-        return super(TokenObtainPairWithoutPasswordSerializer, self).validate(attrs)
+        data = super(TokenObtainPairWithoutPasswordSerializer, self).validate(attrs)
+        data['uuid'] = self.user.id
+        return data
 
 
 class MyTokenObtainPairView(TokenObtainPairView):
@@ -36,3 +41,14 @@ class MyTokenObtainPairView(TokenObtainPairView):
 
 class TokenObtainPairWithoutPasswordView(TokenObtainPairView):
     serializer_class = TokenObtainPairWithoutPasswordSerializer
+
+
+class GenerateSubjectAccountView(APIView):
+    
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, *args):
+        user = User.objects.create_subject_user()
+        user_serializer = UserSerializer(user)
+        return Response(user_serializer.data, status=status.HTTP_200_OK)
+

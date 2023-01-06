@@ -21,6 +21,5 @@ admin.site.site_url ='/qu/aqg'
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("aqg/", include('aqg.urls'), name='aqg'),
-    path('aqg/auth/', include('auth.urls'), name='auth'),
-    path("cwdsrc/", include('crowdsource.urls'), name='crowdsource')
+    path('aqg/auth/', include('userauth.urls'), name='userauth'),
 ]

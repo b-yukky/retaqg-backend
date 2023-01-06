@@ -1,5 +1,11 @@
 from rest_framework import serializers
 from .models import *
+from userauth.models import User
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = '__all__'
 
 class ParagraphSerializer(serializers.ModelSerializer):
     class Meta:
