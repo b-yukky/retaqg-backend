@@ -5,12 +5,15 @@ from django.http import HttpResponse
 from .models import * 
 from .serializers  import *
 from userauth.models import User
+from django.contrib.auth.models import Group
+
 import json
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.parsers import JSONParser
-from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly, AllowAny
+from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly, AllowAny, DjangoModelPermissions
+from .permissions import DjangoModelPermissionsWithRead
 from .utils.model_creator import ModelCreator
 from .mcq_selector import MCQSelector
 
@@ -18,7 +21,7 @@ from django.db import transaction
 from .utils.models_init import init_models
 
 # Create your views here.
-DEV_DEBUG = True
+DEV_DEBUG = False
 
 ML_MODELS, DEFAULT_MODEL_NAME = init_models({
     'leafQad_base': True,
@@ -125,11 +128,12 @@ class QuestionsByParagraphView(APIView):
 
 class EvaluationView(APIView):
     
-    permission_classes = [IsAuthenticated]
+    queryset = Evaluation.objects.all()
+    permission_classes = [DjangoModelPermissionsWithRead]
     
     def get(self, request, question_id, *args):
         try:
-            evaluation = Evaluation.objects.get(question=question_id, user__username=request.user)
+            evaluation = Evaluation.objects.get(question=question_id, user=request.user)
             evaluation_serializer = EvaluationSerializer(evaluation)
             return Response(evaluation_serializer.data, status=status.HTTP_200_OK)
         except Evaluation.DoesNotExist:
@@ -141,7 +145,7 @@ class EvaluationView(APIView):
             return Response(empty_evaluation_serializer.data, status=status.HTTP_200_OK)
         except Evaluation.MultipleObjectsReturned:
             ''' This is not supposed to happen '''
-            evaluation = Evaluation.objects.filter(question=question_id, user__username=request.user).first()
+            evaluation = Evaluation.objects.filter(question=question_id, user=request.user).first()
             evaluation_serializer = EvaluationSerializer(evaluation)
             return Response(evaluation_serializer.data, status=status.HTTP_200_OK)
         except Exception as error:
@@ -152,7 +156,7 @@ class EvaluationView(APIView):
         evaluation_serializer = EvaluationSerializer(data=request.data)
         if evaluation_serializer.is_valid():
             evaluation_serializer.save(
-                user=User.objects.get(username=request.user)
+                user=request.user
             )
             return Response(evaluation_serializer.data, status=status.HTTP_201_CREATED)
         else:
@@ -167,7 +171,7 @@ class EvaluationView(APIView):
         evaluation_serializer = EvaluationSerializer(evaluation, data=request.data)
         if evaluation_serializer.is_valid():
             evaluation_serializer.save(
-                user=User.objects.get(username=request.user)
+                user=request.user
             )
             return SelectQuestionToEvaluate.get(self, request)
         else:
@@ -191,7 +195,7 @@ class SelectQuestionToEvaluate(APIView):
         
         queryset_question = Question.objects\
             .filter(status='EV')\
-            .exclude(evaluations__user__username=request.user)\
+            .exclude(evaluations__user=request.user)\
             .order_by('paragraph')
         
         print(queryset_question)
@@ -204,11 +208,11 @@ class SelectQuestionToEvaluate(APIView):
 class EvaluationStatisticsView(APIView):
     
     permission_classes = [IsAuthenticated]
-    
+
     def get(self, request):
         
-        completed = Question.objects.filter(status='EV', evaluations__user__username=request.user).count()
-        remaining = Question.objects.filter(status='EV').exclude(evaluations__user__username=request.user).count()
+        completed = Question.objects.filter(status='EV', evaluations__user=request.user).count()
+        remaining = Question.objects.filter(status='EV').exclude(evaluations__user=request.user).count()
         
         stats_serializer = EvaluationStatsSerializer({
             'questions_completed': completed,
@@ -234,7 +238,7 @@ class ProfileView(APIView):
     
     def get(self, request, *args):
         try:
-            profile = Profile.objects.get(user__username=request.user)
+            profile = Profile.objects.get(user=request.user)
             profile_serializer = ProfileSerializer(profile)
             return Response(profile_serializer.data, status=status.HTTP_200_OK)
         except Profile.DoesNotExist:
@@ -244,11 +248,18 @@ class ProfileView(APIView):
 
     def put(self, request, *args):
         try:
-            profile = Profile.objects.get(user__username=request.user)
+            profile = Profile.objects.get(user=request.user)
         except Profile.DoesNotExist:
+            print(request.user.id)
             profile = Profile.objects.create(
-                user=User.objects.get(username=request.user)
+                user=request.user
             )
+        
+        if 'english_proficiency' in request.data:
+            group = Group.objects.get(name='en_verified')
+            profile.user.groups.add(group)
+            profile.save()
+            
         profile_serializer = ProfileSerializer(profile, data=request.data)
         if profile_serializer.is_valid():
             profile_serializer.save()

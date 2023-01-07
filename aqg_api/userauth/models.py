@@ -1,4 +1,5 @@
 
+from xml.etree.ElementInclude import default_loader
 from django.contrib.auth.models import AbstractUser, Group
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.validators import UnicodeUsernameValidator
@@ -28,6 +29,7 @@ class CustomManager(BaseUserManager):
     def create_subject_user(self):
         user = self.model()
         group_subject = Group.objects.get(name='subject')
+        user.login_url = user.login_url + str(user.id)
         user.save(using=self._db)
         group_subject.user_set.add(user)
         return user
@@ -53,6 +55,8 @@ class User(AbstractUser):
         null=True,
         blank=True # Same code that has django as a default only added this to say can be an empty value
     )
+    
+    login_url = models.URLField(max_length=200, default="https://la.ait.kyushu-u.ac.jp/qu/aqg/login/")
     #Custom Field
     # group = models.ForeignKey(Group, on_delete=models.CASCADE, blank=True, null=True)
     objects = CustomManager()
