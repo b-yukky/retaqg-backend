@@ -43,11 +43,12 @@ class Question(models.Model):
     
     status = models.CharField(choices=STATUS, default='TS', max_length=2)
     
-    paragraph = models.ForeignKey(Paragraph, on_delete=models.CASCADE)
+    paragraph = models.ForeignKey(Paragraph, on_delete=models.CASCADE, related_name='questions')
     model = models.ForeignKey(Model, on_delete=models.SET_NULL, null=True)
     
     def __str__(self) -> str:
         return f"{self.id} - {self.text}"
+
     
 class Evaluation(models.Model):
     
