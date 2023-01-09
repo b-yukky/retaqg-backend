@@ -8,6 +8,15 @@ STATUS = [
     ('PR', 'PRODUCTION'),
 ]
 
+class Dataset(models.Model):
+    
+    name = models.CharField(max_length=40, unique=True)
+    
+    comment = models.TextField(blank=True, null=True)
+    
+    def __str__(self) -> str:
+        return f"{self.id} - {self.name}"
+    
 class Paragraph(models.Model):
     
     length = models.IntegerField()
@@ -16,6 +25,8 @@ class Paragraph(models.Model):
     document_name = models.CharField(max_length=120, blank=True)
     topic = models.CharField(max_length=80, blank=True)
     summary = models.TextField(blank=True)
+    
+    dataset = models.ForeignKey(Dataset, on_delete=models.SET_NULL, null=True, related_name='paragraphs')
     
     def __str__(self)  -> str:
         sumup = self.summary[:100] if len(self.summary) > 0 else self.text[:30]
@@ -82,3 +93,5 @@ class Profile(models.Model):
     
     def __str__(self) -> str:
         return f"profile - {self.user}"
+
+

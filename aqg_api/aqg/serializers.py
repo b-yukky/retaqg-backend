@@ -26,7 +26,12 @@ class ModelSerializer(serializers.ModelSerializer):
     class Meta:
         model = Model
         fields = '__all__'
-
+        
+class DatasetSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Dataset
+        fields = '__all__'
+        
 class QuestionSerializer(serializers.ModelSerializer):
     
     distractors = DistractorMinSerializer(many=True, read_only=True)

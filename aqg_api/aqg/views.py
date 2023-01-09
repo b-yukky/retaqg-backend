@@ -21,7 +21,7 @@ from django.db import transaction
 from .utils.models_init import init_models
 
 # Create your views here.
-DEV_DEBUG = True
+DEV_DEBUG = False
 
 ML_MODELS, DEFAULT_MODEL_NAME = init_models({
     'leafQad_base': True,
@@ -58,7 +58,8 @@ class ModelV2(APIView):
 
         count = request.data['count'] if 'count' in request.data else 1
         topic = request.data['topic'] if 'topic' in request.data else ''
-        
+        dataset = request.data['dataset'] if 'dataset' in request.data else ''
+
         # mcq_generator.select_model(model_name)
         
         questions, answers, distractors = mcq_selector.generate_mcq_questions(text, model_name, count)
@@ -69,7 +70,7 @@ class ModelV2(APIView):
         print(questions, answers)
         
         with transaction.atomic():
-            questions = model_creator.add_mcq_to_db(questions, answers, distractors, text, model_name, topic)
+            questions = model_creator.add_mcq_to_db(questions, answers, distractors, text, model_name, topic, dataset)
         
         questions_serializer = QuestionDetailSerializer(questions, many=True)
 
@@ -232,6 +233,18 @@ class ModelView(APIView):
         except Exception as error:
             return Response(status=status.HTTP_404_NOT_FOUND)
 
+class DatasetView(APIView):
+    
+    permission_classes = [AllowAny]
+    
+    def get(self, *args):
+        try:
+            datasets = Dataset.objects.all()
+            datasets_serializer = DatasetSerializer(datasets, many=True)
+            return Response(datasets_serializer.data, status=status.HTTP_200_OK)
+        except Exception as error:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        
 class ProfileView(APIView):
     
     permission_classes = [IsAuthenticated]
