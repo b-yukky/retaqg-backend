@@ -34,8 +34,6 @@ class CustomManager(BaseUserManager):
         group_subject.user_set.add(user)
         return user
 
-        
-
 
 class User(AbstractUser):
     # Some rules adding username

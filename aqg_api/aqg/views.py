@@ -1,3 +1,4 @@
+from audioop import add
 from django.shortcuts import render
 from datetime import date
 from django.http import Http404, response
@@ -31,6 +32,13 @@ ML_MODELS, DEFAULT_MODEL_NAME = init_models({
 
 mcq_selector = MCQSelector(ML_MODELS)
 model_creator = ModelCreator()
+
+def get_user_additional_questions(user):
+        try:
+            return  Profile.objects.get(user=user).additional_questions
+        except Profile.DoesNotExist:
+            return  0
+
 
 class ModelV2(APIView):
     
@@ -197,8 +205,8 @@ class SelectQuestionToEvaluate(APIView):
         
         max_eval_per_question = ExperimentSetting.objects.filter(active=True).first().max_eval_per_question
         completed = Question.objects.filter(status='EV', evaluations__user=request.user).count()
-        max_questions = ExperimentSetting.objects.filter(active=True).first().max_questions_per_subject + \
-            Profile.objects.get(user=request.user).additional_questions
+        max_questions = ExperimentSetting.objects.filter(active=True).first().max_questions_per_subject \
+            + get_user_additional_questions(request.user)
         
         queryset_question = Question.objects \
             .annotate(evaluations_count=Count('evaluations')) \
@@ -225,8 +233,9 @@ class EvaluationStatisticsView(APIView):
         
         max_eval_per_question = ExperimentSetting.objects.filter(active=True).first().max_eval_per_question
         completed = Question.objects.filter(status='EV', evaluations__user=request.user).count()
-        max_questions = ExperimentSetting.objects.filter(active=True).first().max_questions_per_subject + \
-            Profile.objects.get(user=request.user).additional_questions
+        max_questions = ExperimentSetting.objects.filter(active=True).first().max_questions_per_subject \
+            + get_user_additional_questions(request.user)
+            
         true_remaining = Question.objects.filter(status='EV') \
             .annotate(evaluations_count=Count('evaluations')) \
             .exclude(evaluations_count__gte=max_eval_per_question) \
@@ -263,7 +272,8 @@ class DatasetView(APIView):
             return Response(datasets_serializer.data, status=status.HTTP_200_OK)
         except Exception as error:
             return Response(status=status.HTTP_404_NOT_FOUND)
-        
+
+
 class ProfileView(APIView):
     
     permission_classes = [IsAuthenticated]
