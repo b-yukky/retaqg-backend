@@ -35,7 +35,7 @@ PATH_TO_SSH_PRIVATE_KEY = "C:\\Users\\LIMU\\.ssh\\id_ed25519"
 SSH_USERNAME = 'ladev'
 LOCAL_DB_PORT_ON_THE_SERVER = 3306
 
-if PRODUCTION:
+if not PRODUCTION:
     ssh_tunnel = SSHTunnelForwarder(
         SERVER_IP,
         ssh_private_key=PATH_TO_SSH_PRIVATE_KEY,
@@ -109,8 +109,8 @@ if PRODUCTION:
         "default": {
             'ENGINE': 'django.db.backends.mysql',
             'NAME': os.environ.get("DATABASE_PROD_NAME"),
-            'HOST': "localhost",
-            'PORT': str(ssh_tunnel.local_bind_port),
+            'HOST': os.environ.get("DATABASE_PROD_HOST"),
+            'PORT': os.environ.get("DATABASE_PROD_PORT"),
             'USER': os.environ.get("DATABASE_PROD_USERNAME"),
             'PASSWORD': os.environ.get("DATABASE_PROD_PASSWORD")  
         }
@@ -134,7 +134,7 @@ else:
         "default": {
             "ENGINE": "django.db.backends.mysql",
             "HOST": os.environ.get("DATABASE_DEV_HOST"),
-            "PORT": os.environ.get("DATABASE_DEV_PORT", default=str(ssh_tunnel.local_bind_port)),
+            "PORT": os.environ.get("DATABASE_DEV_PORT", default=ssh_tunnel.local_bind_port),
             "NAME": os.environ.get("DATABASE_DEV_NAME"),
             "USER": os.environ.get("DATABASE_DEV_USERNAME"),
             "PASSWORD": os.environ.get("DATABASE_DEV_PASSWORD"),
