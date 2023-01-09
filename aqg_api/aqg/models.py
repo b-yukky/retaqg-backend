@@ -90,8 +90,19 @@ class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     
     english_proficiency = models.IntegerField(default=0)
+    additional_questions = models.IntegerField(default=0)
     
     def __str__(self) -> str:
         return f"profile - {self.user}"
 
+class ExperimentSetting(models.Model):
+    
+    name = models.CharField(max_length=40, unique=True)
+    
+    max_eval_per_question = models.IntegerField(default=5)
+    max_questions_per_subject = models.IntegerField(default=20)
+    
+    active = models.BooleanField(default=False)
 
+    def __str__(self) -> str:
+        return f"{self.name}"

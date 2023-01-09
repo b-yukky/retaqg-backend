@@ -16,4 +16,6 @@ urlpatterns = [
     path('model/list/', views.ModelView.as_view()),
     path('dataset/list/', views.DatasetView.as_view()),
     path('my-profile/', views.ProfileView.as_view()),
+    path('my-profile/add-questions/', views.AddQuestionsView.as_view()),
+    path('my-profile/add-questions/<int:n>', views.AddQuestionsView.as_view()),
 ]

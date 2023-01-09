@@ -6,6 +6,7 @@ from .models import *
 from .serializers  import *
 from userauth.models import User
 from django.contrib.auth.models import Group
+from django.db.models import Count
 
 import json
 from rest_framework.views import APIView
@@ -21,7 +22,7 @@ from django.db import transaction
 from .utils.models_init import init_models
 
 # Create your views here.
-DEV_DEBUG = False
+DEV_DEBUG = True
 
 ML_MODELS, DEFAULT_MODEL_NAME = init_models({
     'leafQad_base': True,
@@ -194,15 +195,25 @@ class SelectQuestionToEvaluate(APIView):
     
     def get(self, request):
         
-        queryset_question = Question.objects\
-            .filter(status='EV')\
-            .exclude(evaluations__user=request.user)\
+        max_eval_per_question = ExperimentSetting.objects.filter(active=True).first().max_eval_per_question
+        completed = Question.objects.filter(status='EV', evaluations__user=request.user).count()
+        max_questions = ExperimentSetting.objects.filter(active=True).first().max_questions_per_subject + \
+            Profile.objects.get(user=request.user).additional_questions
+        
+        queryset_question = Question.objects \
+            .annotate(evaluations_count=Count('evaluations')) \
+            .filter(status='EV') \
+            .exclude(evaluations__user=request.user) \
+            .exclude(evaluations_count__gte=max_eval_per_question) \
             .order_by('paragraph')
         
-        print(queryset_question)
+        print('total following questions', queryset_question.count())
         if queryset_question.count() > 0:
-            question_serializer = QuestionDetailSerializer(queryset_question.first())
-            return Response(question_serializer.data, status=status.HTTP_200_OK)
+            if completed < max_questions:
+                question_serializer = QuestionDetailSerializer(queryset_question.first())
+                return Response(question_serializer.data, status=status.HTTP_200_OK)
+            else:
+                return Response(status=status.HTTP_200_OK)
         else:
             return Response(status=status.HTTP_204_NO_CONTENT)
 
@@ -212,9 +223,17 @@ class EvaluationStatisticsView(APIView):
 
     def get(self, request):
         
+        max_eval_per_question = ExperimentSetting.objects.filter(active=True).first().max_eval_per_question
         completed = Question.objects.filter(status='EV', evaluations__user=request.user).count()
-        remaining = Question.objects.filter(status='EV').exclude(evaluations__user=request.user).count()
-        
+        max_questions = ExperimentSetting.objects.filter(active=True).first().max_questions_per_subject + \
+            Profile.objects.get(user=request.user).additional_questions
+        true_remaining = Question.objects.filter(status='EV') \
+            .annotate(evaluations_count=Count('evaluations')) \
+            .exclude(evaluations_count__gte=max_eval_per_question) \
+            .exclude(evaluations__user=request.user).count()
+        remaining = max_questions - completed
+        remaining = true_remaining if true_remaining < remaining else remaining
+
         stats_serializer = EvaluationStatsSerializer({
             'questions_completed': completed,
             'questions_remaining': remaining
@@ -279,3 +298,16 @@ class ProfileView(APIView):
             return Response(profile_serializer.data, status=status.HTTP_200_OK)
         else:
             return Response(profile_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class AddQuestionsView(APIView):
+    
+    permission_classes = [IsAuthenticated]
+    
+    def post(self, request, n=10, *args):
+        try:
+            profile = Profile.objects.get(user=request.user)
+            profile.additional_questions = profile.additional_questions + n
+            profile.save()
+            return SelectQuestionToEvaluate.get(self, request)
+        except Profile.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
