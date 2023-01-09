@@ -13,18 +13,19 @@ import uuid
 class CustomManager(BaseUserManager):
     use_in_migrations = True
 
-    def _create_user(self, password=None,**extra_fields):
+    def _create_user(self, email='', password=None,**extra_fields):
         """
         Creates and saves a User with the given email and password.
         """
-        user = self.model(**extra_fields)
+        email = self.normalize_email(email)
+        user = self.model(email=email, **extra_fields)
         user.set_password(password)
         user.save(using=self._db)
         return user
 
     def create_user(self, password=None, **extra_fields):
         extra_fields.setdefault('is_superuser', False)
-        return self._create_user(password, **extra_fields)
+        return self._create_user(password=password, **extra_fields)
 
     def create_subject_user(self):
         user = self.model()
@@ -33,7 +34,21 @@ class CustomManager(BaseUserManager):
         user.save(using=self._db)
         group_subject.user_set.add(user)
         return user
+    
+    def create_superuser(self, password, email='', **extra_fields):
+        extra_fields.setdefault("is_staff", True)
+        extra_fields.setdefault("is_superuser", True)
 
+        if extra_fields.get("is_staff") is not True:
+            raise ValueError(
+                "Superuser must have is_staff=True."
+            )
+        if extra_fields.get("is_superuser") is not True:
+            raise ValueError(
+                "Superuser must have is_superuser=True."
+            )
+
+        return self._create_user(email, password, **extra_fields)
 
 class User(AbstractUser):
     # Some rules adding username
@@ -63,7 +78,7 @@ class User(AbstractUser):
     USERNAME_FIELD = 'username'
 
     # Field for command createsuperuser
-    REQUIRED_FIELDS = ['first_name','last_name']
+    REQUIRED_FIELDS = ['first_name','last_name', 'email']
 
     def __str__(self):
         return f"{self.id} - {self.username}"
