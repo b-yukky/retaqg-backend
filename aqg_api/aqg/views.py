@@ -25,13 +25,13 @@ from .utils.models_init import init_models
 # Create your views here.
 DEV_DEBUG = True
 
-ML_MODELS, DEFAULT_MODEL_NAME = init_models({
-    'leafQad_base': True,
-    'sumQd_base': False
-}, DEV_DEBUG)
+# ML_MODELS, DEFAULT_MODEL_NAME = init_models({
+#     'leafQad_base': True,
+#     'sumQd_base': False
+# }, DEV_DEBUG)
 
-mcq_selector = MCQSelector(ML_MODELS)
-model_creator = ModelCreator()
+# mcq_selector = MCQSelector(ML_MODELS)
+# model_creator = ModelCreator()
 
 def get_user_additional_questions(user):
         try:
