@@ -8,6 +8,7 @@ from .serializers  import *
 from userauth.models import User
 from django.contrib.auth.models import Group
 from django.db.models import Count
+from django.utils import timezone
 
 import json
 from rest_framework.views import APIView
@@ -23,7 +24,7 @@ from django.db import transaction
 from .utils.models_init import init_models
 
 # Create your views here.
-DEV_DEBUG = False
+DEV_DEBUG = True
 
 ML_MODELS, DEFAULT_MODEL_NAME = init_models({
     'leafQad_base': True,
@@ -144,12 +145,14 @@ class EvaluationView(APIView):
     def get(self, request, question_id, *args):
         try:
             evaluation = Evaluation.objects.get(question=question_id, user=request.user)
+            evaluation.start_time = timezone.now()
             evaluation_serializer = EvaluationSerializer(evaluation)
             return Response(evaluation_serializer.data, status=status.HTTP_200_OK)
         except Evaluation.DoesNotExist:
             empty_evaluation_serializer = EvaluationSerializer(
                 Evaluation(
-                    question=Question.objects.get(id=question_id)
+                    question=Question.objects.get(id=question_id),
+                    start_time=timezone.now()
                 )
             )
             return Response(empty_evaluation_serializer.data, status=status.HTTP_200_OK)

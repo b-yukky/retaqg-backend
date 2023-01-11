@@ -5,7 +5,7 @@ urlpatterns = [
     
     path('question/generate/v2/', views.ModelV2.as_view()),
     path('evaluation/', views.EvaluationView.as_view()),
-    path('evaluation/<int:evaluation_id>', views.EvaluationView.as_view()),
+    path('evaluation/<int:question_id>', views.EvaluationView.as_view()),
     path('evaluation/question/<int:question_id>', views.EvaluationView.as_view()),
     path('question/evaluation/select/', views.SelectQuestionToEvaluate.as_view()),
     path('question/list/', views.QuestionView.as_view()),
