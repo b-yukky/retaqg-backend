@@ -45,6 +45,7 @@ if not PRODUCTION or PROD_DEBUG:
     )
     ssh_tunnel.start()
 
+ssh_tunnel_port = ssh_tunnel.local_bind_port if ssh_tunnel else 3306
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -112,7 +113,7 @@ if PRODUCTION:
             'ENGINE': 'django.db.backends.mysql',
             'NAME': os.environ.get("DATABASE_PROD_NAME"),
             'HOST': os.environ.get("DATABASE_PROD_HOST"),
-            'PORT': os.environ.get("DATABASE_PROD_PORT", default=ssh_tunnel.local_bind_port or 3306),
+            'PORT': os.environ.get("DATABASE_PROD_PORT", default=ssh_tunnel_port),
             'USER': os.environ.get("DATABASE_PROD_USERNAME"),
             'PASSWORD': os.environ.get("DATABASE_PROD_PASSWORD")  
         }
@@ -136,7 +137,7 @@ else:
         "default": {
             "ENGINE": "django.db.backends.mysql",
             "HOST": os.environ.get("DATABASE_DEV_HOST"),
-            "PORT": os.environ.get("DATABASE_DEV_PORT", default=ssh_tunnel.local_bind_port or 3306),
+            "PORT": os.environ.get("DATABASE_DEV_PORT", default=ssh_tunnel_port),
             "NAME": os.environ.get("DATABASE_DEV_NAME"),
             "USER": os.environ.get("DATABASE_DEV_USERNAME"),
             "PASSWORD": os.environ.get("DATABASE_DEV_PASSWORD"),
