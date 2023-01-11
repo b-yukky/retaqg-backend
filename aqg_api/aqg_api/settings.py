@@ -45,7 +45,10 @@ if not PRODUCTION or PROD_DEBUG:
     )
     ssh_tunnel.start()
 
-ssh_tunnel_port = ssh_tunnel.local_bind_port if ssh_tunnel else 3306
+try:
+    ssh_tunnel_port = ssh_tunnel.local_bind_port
+except Exception:
+    ssh_tunnel_port = 3306
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
