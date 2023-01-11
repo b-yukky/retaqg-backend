@@ -3,6 +3,7 @@ from .models import *
 from userauth.models import User
 
 class UserSerializer(serializers.ModelSerializer):
+    uuid = serializers.CharField(source='id')
     class Meta:
         model = User
         fields = '__all__'

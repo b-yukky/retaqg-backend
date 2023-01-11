@@ -28,6 +28,7 @@ SECRET_KEY = "django-insecure-2o(5!9+na6d(+n#$lwi&n_r@@#384m01$v_cr6*@q833gp^4$9
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = int(os.environ.get("DJANGO_DEBUG", default=0))
+PROD_DEBUG = int(os.environ.get("PROD_DEBUG", default=0))
 PRODUCTION = int(os.environ.get("PRODUCTION", default=0))
 
 SERVER_IP = '133.5.19.111'
@@ -35,7 +36,7 @@ PATH_TO_SSH_PRIVATE_KEY = "C:\\Users\\LIMU\\.ssh\\id_ed25519"
 SSH_USERNAME = 'ladev'
 LOCAL_DB_PORT_ON_THE_SERVER = 3306
 
-if not PRODUCTION:
+if not PRODUCTION or PROD_DEBUG:
     ssh_tunnel = SSHTunnelForwarder(
         SERVER_IP,
         ssh_private_key=PATH_TO_SSH_PRIVATE_KEY,
@@ -110,7 +111,7 @@ if PRODUCTION:
             'ENGINE': 'django.db.backends.mysql',
             'NAME': os.environ.get("DATABASE_PROD_NAME"),
             'HOST': os.environ.get("DATABASE_PROD_HOST"),
-            'PORT': os.environ.get("DATABASE_PROD_PORT"),
+            'PORT': os.environ.get("DATABASE_PROD_PORT", default=ssh_tunnel.local_bind_port),
             'USER': os.environ.get("DATABASE_PROD_USERNAME"),
             'PASSWORD': os.environ.get("DATABASE_PROD_PASSWORD")  
         }

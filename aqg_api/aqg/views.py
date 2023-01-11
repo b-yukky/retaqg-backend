@@ -27,7 +27,7 @@ DEV_DEBUG = False
 
 ML_MODELS, DEFAULT_MODEL_NAME = init_models({
     'leafQad_base': True,
-    'sumQd_base': True
+    'sumQd_base': False
 }, DEV_DEBUG)
 
 mcq_selector = MCQSelector(ML_MODELS)
