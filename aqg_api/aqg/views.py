@@ -329,13 +329,15 @@ class AddQuestionsView(APIView):
 
 class ActiveExperimentSettingView(APIView):
     
+    permission_classes = [IsAuthenticated]
+    
     def get(self, request):
         try:
             settings = ExperimentSetting.objects.get(active=True)
-            settings_serializer = ExperimentSettingSerializer(settings, many=True)
-            return Response(settings_serializer.data, status=status.HTTP_200_OK)
+            setting_serializer = ExperimentSettingSerializer(settings)
+            return Response(setting_serializer.data, status=status.HTTP_200_OK)
         except ExperimentSetting.MultipleObjectsReturned:
-            return Response(settings_serializer.data, status=status.HTTP_200_OK)
+            return Response(setting_serializer.data, status=status.HTTP_200_OK)
         except ExperimentSetting.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
 
