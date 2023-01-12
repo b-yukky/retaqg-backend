@@ -73,6 +73,11 @@ class ProfileSerializer(serializers.ModelSerializer):
         model = Profile
         exclude = ['user']
 
+class ExperimentSettingSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ExperimentSetting
+        fields = '__all__'
+        
 class EvaluationStatsSerializer(serializers.Serializer):
     
     questions_completed = serializers.IntegerField()

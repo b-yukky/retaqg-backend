@@ -11,6 +11,7 @@ from django.db.models import Count
 from django.utils import timezone
 
 import json
+from rest_framework import viewsets
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -24,7 +25,7 @@ from django.db import transaction
 from .utils.models_init import init_models
 
 # Create your views here.
-DEV_DEBUG = True
+DEV_DEBUG = False
 
 ML_MODELS, DEFAULT_MODEL_NAME = init_models({
     'leafQad_base': True,
@@ -324,3 +325,33 @@ class AddQuestionsView(APIView):
             return SelectQuestionToEvaluate.get(self, request)
         except Profile.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
+
+
+class ActiveExperimentSettingView(APIView):
+    
+    def get(self, request):
+        try:
+            settings = ExperimentSetting.objects.get(active=True)
+            settings_serializer = ExperimentSettingSerializer(settings, many=True)
+            return Response(settings_serializer.data, status=status.HTTP_200_OK)
+        except ExperimentSetting.MultipleObjectsReturned:
+            return Response(settings_serializer.data, status=status.HTTP_200_OK)
+        except ExperimentSetting.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+    def post(self, request, setting_id=None):
+        try:
+            with transaction.atomic():
+                settings = ExperimentSetting.objects.all()
+                setting = ExperimentSetting.objects.get(id=setting_id)
+                setting.active = True
+                settings.update(active=False)
+                setting.save()
+        except ExperimentSetting.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+class ExperimentSettingViewSet(viewsets.ModelViewSet):
+
+    serializer_class = ExperimentSettingSerializer
+    permission_classes = [IsAuthenticated]
+    queryset = ExperimentSetting.objects.all()

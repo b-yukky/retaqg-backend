@@ -1,5 +1,10 @@
 from django.urls import include, path, re_path
 from . import views
+from rest_framework.routers import DefaultRouter
+
+router = DefaultRouter(trailing_slash=False)
+
+router.register(r'experiment/settings', views.ExperimentSettingViewSet, basename='experiment-settings')
 
 urlpatterns = [
     
@@ -18,4 +23,10 @@ urlpatterns = [
     path('my-profile/', views.ProfileView.as_view()),
     path('my-profile/add-questions/', views.AddQuestionsView.as_view()),
     path('my-profile/add-questions/<int:n>', views.AddQuestionsView.as_view()),
+    path('experiment/settings/active/', views.ActiveExperimentSettingView.as_view()),
+    path('experiment/settings/active/change/<int:setting_id>', views.ActiveExperimentSettingView.as_view()),
+    
+    path('', include(router.urls))
+
 ]
+
