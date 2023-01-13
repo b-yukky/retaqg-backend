@@ -29,7 +29,7 @@ DEV_DEBUG = True
 
 ML_MODELS, DEFAULT_MODEL_NAME = init_models({
     'leafQad_base': True,
-    'sumQd_base': True
+    'sumQd_base': False
 }, DEV_DEBUG)
 
 mcq_selector = MCQSelector(ML_MODELS)
@@ -233,7 +233,7 @@ class SelectQuestionToEvaluate(APIView):
             if prefered_questions.count() > 0:
                 queryset_question = prefered_questions
                 break
-        
+
         if queryset_question.count() > 0:
             if completed < max_questions:
                 question_serializer = QuestionDetailSerializer(queryset_question.first())
@@ -338,7 +338,9 @@ class ProfileView(APIView):
             profile.user.groups.add(group)
             profile.save()
         
+        print('data', request.data)
         if 'topic_preferences' in request.data:
+            
             add_to_group_or_create(profile, 'topic_preferences')
             
         profile_serializer = ProfileSerializer(profile, data=request.data)
@@ -398,3 +400,9 @@ class TopicViewSet(viewsets.ModelViewSet):
     serializer_class = TopicSerializer
     permission_classes = [AllowAny]
     queryset = Topic.objects.all()
+
+class EvaluationViewSet(viewsets.ModelViewSet):
+
+    serializer_class = EvaluationSerializer
+    permission_classes = [DjangoModelPermissionsWithRead]
+    queryset = Evaluation.objects.all()

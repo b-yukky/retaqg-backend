@@ -59,7 +59,7 @@ class QuestionDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = Question
         fields = '__all__'
-        depth = 1
+        depth = 2
         
     def to_representation(self, instance):
         question = super().to_representation(instance)

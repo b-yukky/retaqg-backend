@@ -5,7 +5,8 @@ from rest_framework.routers import DefaultRouter
 router = DefaultRouter(trailing_slash=False)
 
 router.register(r'experiment/settings', views.ExperimentSettingViewSet, basename='experiment-settings')
-router.register(r'topic', views.TopicViewSet, basename='topic')
+router.register(r'topics', views.TopicViewSet, basename='topic')
+router.register(r'evaluation/view', views.EvaluationViewSet, basename='evaluation')
 
 urlpatterns = [
     
