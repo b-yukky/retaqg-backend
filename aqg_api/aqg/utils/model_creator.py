@@ -7,7 +7,7 @@ class ModelCreator():
         ''' Empty initialization'''
         pass
     
-    def add_mcq_to_db(self, questions: list, answers: list, distractors_list:list, context: str, model_name: str, topic: str, dataset: str):
+    def add_mcq_to_db(self, questions: list, answers: list, distractors_list:list, context: str, model_name: str, topic_name: str, dataset: str):
         
         results = []
         
@@ -15,7 +15,14 @@ class ModelCreator():
             model = Model.objects.get(name=model_name)
         except Model.DoesNotExist:
             model = None
-            
+        
+        try:
+            topic = Topic.objects.get(name=topic_name.lower())
+        except Topic.DoesNotExist:
+            topic = Topic(
+                name=topic_name.lower()
+            )
+            topic.save()
         try:
             paragraph = Paragraph.objects.get(text=context)
         except Paragraph.DoesNotExist:

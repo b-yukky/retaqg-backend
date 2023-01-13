@@ -95,3 +95,7 @@ class EvaluationStatsSerializer(serializers.Serializer):
     questions_completed = serializers.IntegerField()
     questions_remaining = serializers.IntegerField()
 
+class TopicSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Topic
+        fields = '__all__'

@@ -16,18 +16,28 @@ class Dataset(models.Model):
     
     def __str__(self) -> str:
         return f"{self.id} - {self.name}"
+
+class Topic(models.Model):
     
+    name = models.CharField(max_length=40, unique=True)
+    
+    comment = models.TextField(blank=True, null=True)
+    
+    def __str__(self) -> str:
+        return f"{self.name}"
+
 class Paragraph(models.Model):
     
     length = models.IntegerField()
     text = models.TextField(blank=False, null=True)
     
     document_name = models.CharField(max_length=120, blank=True)
-    topic = models.CharField(max_length=80, blank=True)
+    topic_old = models.CharField(max_length=80, blank=True)
     summary = models.TextField(blank=True)
     
     dataset = models.ForeignKey(Dataset, on_delete=models.SET_NULL, null=True, related_name='paragraphs')
-    
+    topic = models.ForeignKey(Topic, on_delete=models.SET_NULL, null=True, related_name='paragraphs')
+
     def __str__(self)  -> str:
         sumup = self.summary[:100] if len(self.summary) > 0 else self.text[:30]
         return f"{self.id} - {sumup}"
@@ -94,6 +104,7 @@ class Profile(models.Model):
     
     english_proficiency = models.IntegerField(default=0)
     additional_questions = models.IntegerField(default=0)
+    topic_preferences = models.JSONField(default=dict)
     
     def __str__(self) -> str:
         return f"profile - {self.user}"

@@ -41,6 +41,14 @@ def get_user_additional_questions(user):
         except Profile.DoesNotExist:
             return  0
 
+def add_to_group_or_create(profile, groupname):
+    try:
+        group = Group.objects.get(name=groupname)
+    except Group.DoesNotExist:
+        group = Group.objects.create(name=groupname)
+        
+    profile.user.groups.add(group)
+    profile.save()
 
 class ModelV2(APIView):
     
@@ -219,7 +227,13 @@ class SelectQuestionToEvaluate(APIView):
             .exclude(evaluations_count__gte=max_eval_per_question) \
             .order_by('paragraph')
         
-        print('total following questions', queryset_question.count())
+        topic_preferences = Profile.objects.get(user=request.user).topic_preferences
+        for i in sorted(topic_preferences):
+            prefered_questions = queryset_question.filter(paragraph__topic__name=topic_preferences[i].lower())
+            if prefered_questions.count() > 0:
+                queryset_question = prefered_questions
+                break
+        
         if queryset_question.count() > 0:
             if completed < max_questions:
                 question_serializer = QuestionDetailSerializer(queryset_question.first())
@@ -323,6 +337,9 @@ class ProfileView(APIView):
             group = Group.objects.get(name='en_verified')
             profile.user.groups.add(group)
             profile.save()
+        
+        if 'topic_preferences' in request.data:
+            add_to_group_or_create(profile, 'topic_preferences')
             
         profile_serializer = ProfileSerializer(profile, data=request.data)
         if profile_serializer.is_valid():
@@ -375,3 +392,9 @@ class ExperimentSettingViewSet(viewsets.ModelViewSet):
     serializer_class = ExperimentSettingSerializer
     permission_classes = [IsAuthenticated]
     queryset = ExperimentSetting.objects.all()
+
+class TopicViewSet(viewsets.ModelViewSet):
+
+    serializer_class = TopicSerializer
+    permission_classes = [AllowAny]
+    queryset = Topic.objects.all()
