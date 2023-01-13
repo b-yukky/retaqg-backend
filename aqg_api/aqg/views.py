@@ -7,7 +7,7 @@ from .models import *
 from .serializers  import *
 from userauth.models import User
 from django.contrib.auth.models import Group
-from django.db.models import Count
+from django.db.models import Count, Q
 from django.utils import timezone
 
 import json
@@ -25,11 +25,11 @@ from django.db import transaction
 from .utils.models_init import init_models
 
 # Create your views here.
-DEV_DEBUG = False
+DEV_DEBUG = True
 
 ML_MODELS, DEFAULT_MODEL_NAME = init_models({
     'leafQad_base': True,
-    'sumQd_base': False
+    'sumQd_base': True
 }, DEV_DEBUG)
 
 mcq_selector = MCQSelector(ML_MODELS)
@@ -252,6 +252,24 @@ class EvaluationStatisticsView(APIView):
             'questions_remaining': remaining
         })
         return Response(stats_serializer.data, status=status.HTTP_200_OK)
+    
+class SubjectsInfoView(APIView):
+    
+    permission_classes = [AllowAny]
+
+
+    def get(self, request):
+        
+        max_questions = ExperimentSetting.objects.filter(active=True).first().max_questions_per_subject
+
+        profiles = Profile.objects.all()
+                
+        for profile in profiles:
+            profile.max_questions = max_questions
+            profile.completed_questions = Question.objects.filter(status='EV', evaluations__user=profile.user).count()
+        
+        profiles = ProfileSerializer(profiles, many=True)        
+        return Response(profiles.data, status=status.HTTP_200_OK)
 
 class ModelView(APIView):
     

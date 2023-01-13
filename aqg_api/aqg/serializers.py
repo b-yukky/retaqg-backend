@@ -1,7 +1,12 @@
 from rest_framework import serializers
 from .models import *
-from userauth.models import User
+from userauth.models import User, Group
 
+class GroupSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Group
+        fields = '__all__'
+        
 class UserSerializer(serializers.ModelSerializer):
     uuid = serializers.CharField(source='id')
     class Meta:
@@ -68,10 +73,17 @@ class EvaluationSerializer(serializers.ModelSerializer):
 
         
 class ProfileSerializer(serializers.ModelSerializer):
-        
+    
+    max_questions = serializers.IntegerField(required=False)
+    completed_questions = serializers.IntegerField(required=False)
+    last_login = serializers.DateTimeField(source='user.last_login', read_only=True)
+    date_joined = serializers.DateTimeField(source='user.date_joined', read_only=True)
+    groups = GroupSerializer(source='user.groups', many=True, read_only=True)
+    
     class Meta:
         model = Profile
-        exclude = ['user']
+        fields = '__all__'
+        read_only_fields = ['user', 'user_detail', 'max_questions', 'completed_questions']
 
 class ExperimentSettingSerializer(serializers.ModelSerializer):
     class Meta:
@@ -82,4 +94,4 @@ class EvaluationStatsSerializer(serializers.Serializer):
     
     questions_completed = serializers.IntegerField()
     questions_remaining = serializers.IntegerField()
-    
+

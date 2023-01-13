@@ -25,7 +25,8 @@ urlpatterns = [
     path('my-profile/add-questions/<int:n>', views.AddQuestionsView.as_view()),
     path('experiment/settings/active/', views.ActiveExperimentSettingView.as_view()),
     path('experiment/settings/active/change/<int:setting_id>', views.ActiveExperimentSettingView.as_view()),
-    
+    path('experiment/settings/active/change/<int:setting_id>', views.ActiveExperimentSettingView.as_view()),
+    path('experiment/subjects/info/', views.SubjectsInfoView.as_view()),
     path('', include(router.urls))
 
 ]
