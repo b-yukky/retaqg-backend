@@ -46,7 +46,7 @@ jobs:
           PROXY_HOST: ${{ secrets.PROXY_HOST }}
           
       - name: Git pull source
-        run:  ssh leds-aqg 'git -C retaqg-backend/ pull'
+        run:  ssh leds-aqg 'cd workspace/ | git -C retaqg-backend/ pull'
       - name: Docker stop, build and start
         run: |
           ssh leds-aqg 'docker stop django'
