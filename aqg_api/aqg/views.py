@@ -50,6 +50,7 @@ def add_to_group_or_create(profile, groupname):
     profile.user.groups.add(group)
     profile.save()
 
+
 class ModelV2(APIView):
     
     permission_classes = [AllowAny]
@@ -320,7 +321,11 @@ class ProfileView(APIView):
             profile_serializer = ProfileSerializer(profile)
             return Response(profile_serializer.data, status=status.HTTP_200_OK)
         except Profile.DoesNotExist:
-            return Response(status=status.HTTP_204_NO_CONTENT)
+            profile = Profile.objects.create(
+                user=request.user
+            )
+            profile_serializer = ProfileSerializer(profile)
+            return Response(profile_serializer.data, status=status.HTTP_200_OK)
         except Exception:
             return Response(status=status.HTTP_404_NOT_FOUND)
 
