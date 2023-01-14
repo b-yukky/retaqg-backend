@@ -52,4 +52,4 @@ jobs:
           ssh leds-aqg 'docker stop django'
           ssh leds-aqg 'docker rm django'
           ssh leds-aqg 'docker compose -f workspace/docker-compose.yml build django'
-          ssh leds-aqg 'docker compose up -d'
+          ssh leds-aqg 'docker compose -f workspace/docker-compose.yml up -d'
