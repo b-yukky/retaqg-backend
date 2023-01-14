@@ -1,0 +1,55 @@
+name: Django CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    strategy:
+      max-parallel: 4
+      matrix:
+        python-version: [3.9]
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Configure SSH
+        run: |
+          mkdir -p ~/.ssh/
+          echo "$SSH_KEY" > ~/.ssh/deploy.key
+          chmod 600 ~/.ssh/deploy.key
+          cat >>~/.ssh/config <<END
+          Host leds-main
+            ForwardAgent yes
+            HostName $PROXY_HOST
+            User $SSH_USER
+            IdentityFile "~/.ssh/deploy.key"
+            StrictHostKeyChecking no
+          Host leds-aqg
+            HostName $SSH_HOST
+            User $SSH_USER
+            ProxyJump leds-main
+            IdentityFile "~/.ssh/deploy.key"
+            ServerAliveInterval 60
+            ServerAliveCountMax 5
+            ForwardAgent yes
+            StrictHostKeyChecking no
+          END
+        env:
+          SSH_USER: ${{ secrets.USERNAME }}
+          SSH_KEY: ${{ secrets.SSH_KEY }}
+          SSH_HOST: ${{ secrets.HOST }}
+          PROXY_HOST: ${{ secrets.PROXY_HOST }}
+          
+      - name: Git pull source
+        run:  ssh leds-aqg 'git -C retaqg-backend/ pull'
+      - name: Docker stop, build and start
+        run: |
+          ssh leds-aqg 'docker stop django'
+          ssh leds-aqg 'docker rm django'
+          ssh leds-aqg 'docker compose build django'
+          ssh leds-aqg 'docker compose up -d'
