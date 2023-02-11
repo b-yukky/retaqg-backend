@@ -58,8 +58,8 @@ class Model(models.Model):
 
 class Question(models.Model):
     
-    text = models.CharField(max_length=180)
-    answer = models.CharField(max_length=180)
+    text = models.CharField(max_length=300)
+    answer = models.CharField(max_length=300)
     timestamp = models.DateTimeField(auto_now=True)
     
     status = models.CharField(choices=STATUS, default='TS', max_length=2)
@@ -91,7 +91,7 @@ class Evaluation(models.Model):
     
 class Distractor(models.Model):
     
-    text = models.CharField(max_length=180)
+    text = models.CharField(max_length=300)
     
     question = models.ForeignKey(Question, on_delete=models.CASCADE, related_name='distractors')
     model = models.ForeignKey(Model, on_delete=models.SET_NULL, related_name='distractors', null=True)
@@ -120,3 +120,4 @@ class ExperimentSetting(models.Model):
 
     def __str__(self) -> str:
         return f"{self.name}"
+
