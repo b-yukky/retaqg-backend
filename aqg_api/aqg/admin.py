@@ -24,7 +24,7 @@ def paragraph2openlearn(modeladmin, request, queryset):
     queryset.update(dataset=Dataset.objects.get(name='OpenLearn'))
 
 class QuestionAdmin(admin.ModelAdmin):
-    list_display = ['text', 'status']
+    list_display = ['model', 'text', 'status']
     actions = [make_toevaluate, make_totest]
 
 class ParagraphAdmin(admin.ModelAdmin):
