@@ -28,8 +28,9 @@ from .utils.models_init import init_models
 DEV_DEBUG = True
 
 ML_MODELS, DEFAULT_MODEL_NAME = init_models({
-    'leafQad_base': True,
-    'sumQd_base': False
+    'leafQad_base': False,
+    'sumQd_base': False,
+    'text-davinci-003': True
 }, DEV_DEBUG)
 
 mcq_selector = MCQSelector(ML_MODELS)
@@ -96,6 +97,23 @@ class ModelV2(APIView):
 
         return Response(questions_serializer.data, status=status.HTTP_200_OK)
 
+class MCQView(APIView):
+    
+    permission_classes = [AllowAny]
+
+    def post(self, request, *args):
+        
+        print(request.data)
+        mcqs_serializer = MCQSerializer(data=request.data, many=True)
+        if mcqs_serializer.is_valid():
+            mcqs = mcqs_serializer.data
+            for mcq in mcqs: 
+                print(mcq['question'])
+                with transaction.atomic():
+                    model_creator.add_mcq_to_db([mcq['question']], [mcq['answer']], [mcq['choices']], mcq['context'], mcq['model'], mcq['topic'], mcq['dataset'])
+            return Response(mcqs_serializer.data, status=status.HTTP_200_OK)
+        else:
+            return Response({"status": "error", "data": mcqs_serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
 class ParagraphView(APIView):
     
@@ -393,6 +411,21 @@ class ActiveExperimentSettingView(APIView):
                 setting.save()
         except ExperimentSetting.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
+
+class ExportExperimentResults(APIView):
+    
+    permission_classes = [AllowAny]
+    
+    def get(self, request):
+        try:
+            results = Evaluation.objects \
+                .annotate(eval_count=Count('user__evaluations')) \
+                .filter(eval_count__gte=ExperimentSetting.objects.filter(active=True).first().max_questions_per_subject)
+            results_serializer = ResultSerializer(results, many=True)
+            return Response(results_serializer.data, status=status.HTTP_200_OK)
+        except Evaluation.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
 
 class ExperimentSettingViewSet(viewsets.ModelViewSet):
 
