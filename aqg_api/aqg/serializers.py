@@ -67,10 +67,10 @@ class QuestionDetailSerializer(serializers.ModelSerializer):
         return question
         
 class EvaluationSerializer(serializers.ModelSerializer):
+    
     class Meta:
         model = Evaluation
         fields = '__all__'
-
         
 class ProfileSerializer(serializers.ModelSerializer):
     
@@ -99,3 +99,29 @@ class TopicSerializer(serializers.ModelSerializer):
     class Meta:
         model = Topic
         fields = '__all__'
+
+class ResultSerializer(serializers.ModelSerializer):
+    
+    model = serializers.CharField(source='question.model.name', read_only=True)
+    topic = serializers.CharField(source='question.paragraph.topic', read_only=True)
+    dataset = serializers.CharField(source='question.paragraph.dataset.name', read_only=True)
+    english_proficiency = serializers.IntegerField(source='user.profile.english_proficiency', read_only=True)
+    start_time = serializers.DateTimeField(read_only=True)
+    end_time = serializers.DateTimeField(read_only=True)
+
+    class Meta:
+        model = Evaluation
+        fields = '__all__'
+        read_only_fields = ['model', 'topic', 'dataset', 'english_proficiency', 'start_time', 'end_time']
+
+
+class MCQSerializer(serializers.Serializer):
+    
+    dataset = serializers.CharField(required=True)
+    topic = serializers.CharField(required=True)
+    context = serializers.CharField(required=True)
+    question = serializers.CharField(required=True)
+    model = serializers.CharField(required=True)
+    answer = serializers.CharField(required=True)
+    choices = serializers.JSONField(required=True)
+    
