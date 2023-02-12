@@ -239,20 +239,21 @@ class SelectQuestionToEvaluate(APIView):
         max_questions = ExperimentSetting.objects.filter(active=True).first().max_questions_per_subject \
             + get_user_additional_questions(request.user)
         
+        
         queryset_question = Question.objects \
             .annotate(evaluations_count=Count('evaluations')) \
             .filter(status='EV') \
             .exclude(evaluations__user=request.user) \
             .exclude(evaluations_count__gte=max_eval_per_question) \
-            .order_by('paragraph')
-        
+            .order_by('evaluations_count', 'paragraph')
+            
         topic_preferences = Profile.objects.get(user=request.user).topic_preferences
         for i in sorted(topic_preferences):
             prefered_questions = queryset_question.filter(paragraph__topic__name=topic_preferences[i].lower())
             if prefered_questions.count() > 0:
                 queryset_question = prefered_questions
-                break
-
+                break  
+            
         if queryset_question.count() > 0:
             if completed < max_questions:
                 question_serializer = QuestionDetailSerializer(queryset_question.first())
@@ -288,7 +289,7 @@ class EvaluationStatisticsView(APIView):
     
 class SubjectsInfoView(APIView):
     
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated, DjangoModelPermissionsWithRead]
 
 
     def get(self, request):
@@ -390,7 +391,8 @@ class AddQuestionsView(APIView):
 class ActiveExperimentSettingView(APIView):
     
     permission_classes = [IsAuthenticated]
-    
+    permission_classes = [IsAuthenticated, DjangoModelPermissionsWithRead]
+
     def get(self, request):
         try:
             settings = ExperimentSetting.objects.get(active=True)
