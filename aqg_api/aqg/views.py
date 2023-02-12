@@ -239,7 +239,6 @@ class SelectQuestionToEvaluate(APIView):
         max_questions = ExperimentSetting.objects.filter(active=True).first().max_questions_per_subject \
             + get_user_additional_questions(request.user)
         
-        
         queryset_question = Question.objects \
             .annotate(evaluations_count=Count('evaluations')) \
             .filter(status='EV') \
@@ -289,6 +288,7 @@ class EvaluationStatisticsView(APIView):
     
 class SubjectsInfoView(APIView):
     
+    queryset = Profile.objects.all()
     permission_classes = [IsAuthenticated, DjangoModelPermissionsWithRead]
 
 
@@ -390,7 +390,7 @@ class AddQuestionsView(APIView):
 
 class ActiveExperimentSettingView(APIView):
     
-    permission_classes = [IsAuthenticated]
+    queryset = ExperimentSetting.objects.all()
     permission_classes = [IsAuthenticated, DjangoModelPermissionsWithRead]
 
     def get(self, request):
