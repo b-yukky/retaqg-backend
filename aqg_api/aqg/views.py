@@ -432,7 +432,7 @@ class ExportExperimentResults(APIView):
 class ExperimentSettingViewSet(viewsets.ModelViewSet):
 
     serializer_class = ExperimentSettingSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, DjangoModelPermissionsWithRead]
     queryset = ExperimentSetting.objects.all()
 
 class TopicViewSet(viewsets.ModelViewSet):

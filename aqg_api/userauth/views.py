@@ -6,6 +6,7 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework import status
 from aqg.serializers  import UserSerializer
+from aqg.permissions import DjangoModelPermissionsWithRead
 
 from userauth.models import User
 
@@ -46,7 +47,8 @@ class TokenObtainPairWithoutPasswordView(TokenObtainPairView):
 
 class GenerateSubjectAccountView(APIView):
     
-    permission_classes = [IsAuthenticated]
+    queryset = User.objects.all()
+    permission_classes = [DjangoModelPermissionsWithRead]
 
     def post(self, request, *args):
         user = User.objects.create_subject_user()
