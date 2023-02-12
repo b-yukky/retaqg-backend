@@ -29,6 +29,8 @@ urlpatterns = [
     path('experiment/settings/active/change/<int:setting_id>', views.ActiveExperimentSettingView.as_view()),
     path('experiment/settings/active/change/<int:setting_id>', views.ActiveExperimentSettingView.as_view()),
     path('experiment/subjects/info/', views.SubjectsInfoView.as_view()),
+    path('experiment/export/results/', views.ExportExperimentResults.as_view()),
+    path('mcq/add/', views.MCQView.as_view()),
     path('', include(router.urls))
 
 ]

@@ -19,7 +19,7 @@ class Dataset(models.Model):
 
 class Topic(models.Model):
     
-    name = models.CharField(max_length=40, unique=True)
+    name = models.CharField(max_length=100, unique=True)
     
     comment = models.TextField(blank=True, null=True)
     
@@ -58,8 +58,8 @@ class Model(models.Model):
 
 class Question(models.Model):
     
-    text = models.CharField(max_length=300)
-    answer = models.CharField(max_length=300)
+    text = models.CharField(max_length=500)
+    answer = models.CharField(max_length=500)
     timestamp = models.DateTimeField(auto_now=True)
     
     status = models.CharField(choices=STATUS, default='TS', max_length=2)
@@ -91,7 +91,7 @@ class Evaluation(models.Model):
     
 class Distractor(models.Model):
     
-    text = models.CharField(max_length=300)
+    text = models.CharField(max_length=500)
     
     question = models.ForeignKey(Question, on_delete=models.CASCADE, related_name='distractors')
     model = models.ForeignKey(Model, on_delete=models.SET_NULL, related_name='distractors', null=True)
